@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-import 'normalize.css';
-import Main from 'components/Main';
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.input = React.createRef();
 
-import '../../styles/basic.css';
+    this.state = {
+      value: '111',
+    };
+  }
 
-function App() {
-  return (
-    <div className="smurfs-app">
-      <Main />
-    </div>
-  );
+  render() {
+    const { value } = this.state;
+    return (
+      <main className="app" />
+    );
+  }
 }
 
 export default App;

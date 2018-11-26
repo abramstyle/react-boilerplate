@@ -1,0 +1,5 @@
+{
+  "app.js": "http://localhost:1592/app.bundle.js",
+  "commons.js": "http://localhost:1592/commons.chunk.js",
+  "index.html": "http://localhost:1592/index.html"
+}

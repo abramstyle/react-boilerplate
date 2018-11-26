@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux';
 
 import user from './user';
-import services from './services';
 import posts from './posts';
+// import comments from './comments';
 
 const reducers = combineReducers({
   user,
-  services,
   posts,
+  // comments,
 });
 
 export default reducers;

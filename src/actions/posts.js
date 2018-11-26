@@ -1,6 +1,6 @@
 import { CALL_API } from '@abramstyle/redux-api';
-import actionTypes from 'constants/actionTypes';
-import { api } from 'helpers/url';
+import actionTypes from '../constants/actionTypes';
+import { api } from '../helpers/url';
 
 export function fetchPosts(data = {}) {
   return {

@@ -10,7 +10,7 @@ const initialState = fromJS({
   page: 1,
 });
 
-function posts(state = initialState, action = {}) {
+function comments(state = initialState, action = {}) {
   switch (action.type) {
     case actionTypes.FETCH_POSTS_REQUEST:
       return state.set('loadingState', LOADING_STATES.LOADING);
@@ -30,4 +30,4 @@ function posts(state = initialState, action = {}) {
   }
 }
 
-export default posts;
+export default comments;

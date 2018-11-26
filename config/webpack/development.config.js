@@ -1,30 +1,39 @@
 require('dotenv').config();
 const { resolve } = require('path');
 const webpack = require('webpack');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const serverHost = process.env.SERVER_HOST || 'localhost';
 const serverPort = process.env.SERVER_PORT || 1592;
 
 const config = env => ({
+  mode: 'development',
+
   entry: {
     app: [
       'react-hot-loader/patch',
-      // support async & await
       'babel-polyfill',
       resolve('src'),
     ],
     commons: [
       'react',
       'redux',
+      'react-redux',
       'react-dom',
+      'react-router',
+      'react-router-dom',
+      'react-helmet',
+      'loadable-components',
     ],
   },
   output: {
-    filename: '[name].js',
+    filename: '[name].bundle.js',
     // the output bundle
+    chunkFilename: '[name].chunk.js',
 
-    path: resolve(__dirname, './build'),
+    path: resolve(__dirname, '../../build'),
 
     publicPath: `http://${serverHost}:${serverPort}/`,
     // necessary for HMR to know where to load the hot update chunks
@@ -50,6 +59,7 @@ const config = env => ({
       'Access-Control-Allow-Origin': '*',
     },
 
+    host: serverHost,
     port: serverPort,
   },
 
@@ -73,18 +83,27 @@ const config = env => ({
       test: /\.js$/,
       use: [{
         loader: 'babel-loader',
-        options: {
-          cacheDirectory: true,
-        },
       }],
       exclude: /node_modules/,
     }, {
-      test: /\.css$/,
+      test: /node_modules.*\.css$/,
       use: [{
         loader: 'style-loader',
+      }, {
+        loader: 'css-loader',
         options: {
-          useable: true,
+          // sourceMap: true,
+          minimize: false,
+          modules: false,
+          importLoaders: 1,
+          localIdentName: '[local]',
         },
+      }],
+    }, {
+      test: /\.css$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: 'style-loader',
       }, {
         loader: 'css-loader',
         options: {
@@ -96,6 +115,11 @@ const config = env => ({
         },
       }, {
         loader: 'postcss-loader',
+        options: {
+          config: {
+            path: resolve(__dirname, '../postcss.config.js'),
+          },
+        },
       }],
     }, {
       test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -122,24 +146,36 @@ const config = env => ({
     }],
   },
 
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: 'commons',
+          chunks: 'initial',
+          minChunks: 2,
+        },
+      },
+    },
+  },
+
   plugins: [
+    new ManifestPlugin(),
+    new WriteFilePlugin({
+      // Write only files that have ".json" extension.
+      test: /\.json/,
+      useHashIndex: true,
+    }),
     new webpack.HotModuleReplacementPlugin(),
     // enable HMR globally
 
     new webpack.NamedModulesPlugin(),
     // prints more readable module names in the browser console on HMR updates
 
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['commons', 'manifest'],
-      minChunks(module) {
-      // this assumes your vendor imports exist in the node_modules directory
-        return module.context && module.context.indexOf('node_modules') !== -1;
-      },
-    }),
     new webpack.DefinePlugin({
-      'process.env.APP_ENV': JSON.stringify(env),
-      'process.env.NODE_ENV': JSON.stringify(env),
-      'process.env.API_HOST': JSON.stringify(process.env.API_HOST),
+      'process.env': {
+        NODE_ENV: JSON.stringify(env),
+        APP_ENV: JSON.stringify(env),
+      },
     }),
     new HtmlWebpackPlugin({ // Also generate a test.html
       template: './src/index.pug',

@@ -1,70 +1,79 @@
+require('dotenv').config();
 const { resolve } = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const serverHost = process.env.SERVER_HOST || 'localhost';
-const serverPort = process.env.SERVER_PORT || 1592;
+const serverPort = process.env.SERVER_PORT || '';
 
 const config = env => ({
+  mode: 'production',
+
   entry: {
     app: [
-      resolve('src'),
+      resolve(__dirname, '../../src'),
     ],
     commons: [
       'react',
       'redux',
+      'react-redux',
       'react-dom',
+      'react-router',
+      'react-router-dom',
+      'react-helmet',
+      'loadable-components',
     ],
   },
   output: {
-    filename: '[name].js',
+    filename: '[name]-[contenthash].bundle.js',
     // the output bundle
+    chunkFilename: '[name]-[contenthash].chunk.js',
 
-    path: resolve(__dirname, './build'),
+    path: resolve(__dirname, '../../build'),
 
     publicPath: `http://${serverHost}:${serverPort}/build/`,
     // necessary for HMR to know where to load the hot update chunks
-    sourceMapFilename: '[name].js.map',
+    sourceMapFilename: '[name]-[contenthash].js.map',
   },
 
   // context: resolve('sources'),
 
   // devtool: 'eval-source-map',
-  devtool: 'inline-source-map',
-
-  devServer: {
-    hot: true,
-    // enable HMR on the server
-
-    contentBase: resolve('public/build'),
-    // match the output path
-
-    publicPath: `http://${serverHost}:${serverPort}/build/`,
-    // match the output `publicPath`
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-
-    port: serverPort,
-  },
+  devtool: 'source-map',
 
   module: {
     rules: [{
+      test: /\.pug/,
+      use: [{
+        loader: 'pug-loader',
+      }],
+    }, {
       test: /\.js$/,
       use: [{
         loader: 'babel-loader',
-        options: {
-          cacheDirectory: true,
-        },
       }],
       exclude: /node_modules/,
     }, {
-      test: /\.css$/,
+      test: /node_modules.*\.css$/,
       use: [{
-        loader: 'style-loader',
+        loader: MiniCssExtractPlugin.loader,
+      }, {
+        loader: 'css-loader',
         options: {
-          useable: true,
+          // sourceMap: true,
+          minimize: false,
+          modules: false,
+          importLoaders: 1,
+          localIdentName: '[local]',
         },
+      }],
+    }, {
+      test: /\.css$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: MiniCssExtractPlugin.loader,
       }, {
         loader: 'css-loader',
         options: {
@@ -76,6 +85,11 @@ const config = env => ({
         },
       }, {
         loader: 'postcss-loader',
+        options: {
+          config: {
+            path: resolve(__dirname, '../postcss.config.js'),
+          },
+        },
       }],
     }, {
       test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -102,27 +116,40 @@ const config = env => ({
     }],
   },
 
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: 'commons',
+          chunks: 'initial',
+          minChunks: 2,
+        },
+      },
+    },
+  },
+
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    // enable HMR globally
+    new ManifestPlugin(),
+    new WriteFilePlugin({
+      // Write only files that have ".json" extension.
+      test: /\.json/,
+      useHashIndex: true,
+    }),
 
     new webpack.NamedModulesPlugin(),
     // prints more readable module names in the browser console on HMR updates
-
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['commons', 'manifest'],
-      minChunks(module) {
-      // this assumes your vendor imports exist in the node_modules directory
-        return module.context && module.context.indexOf('node_modules') !== -1;
-      },
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: '[name]-[contenthash].css',
+      chunkFilename: '[name]-[contenthash].css',
     }),
+
     new webpack.DefinePlugin({
       'process.env': {
+        NODE_ENV: JSON.stringify(env),
         APP_ENV: JSON.stringify(env),
       },
-    }),
-    new HtmlWebpackPlugin({ // Also generate a test.html
-      filename: 'index.html',
     }),
   ],
 });
