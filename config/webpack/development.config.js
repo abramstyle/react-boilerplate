@@ -1,9 +1,12 @@
 require('dotenv').config();
-const { resolve } = require('path');
+const {
+  resolve,
+} = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const serverHost = process.env.SERVER_HOST || 'localhost';
 const serverPort = process.env.SERVER_PORT || 1592;
@@ -64,13 +67,7 @@ const config = env => ({
   },
 
   resolve: {
-    alias: {
-      constants: resolve(__dirname, '../../src/constants'),
-      components: resolve(__dirname, '../../src/components'),
-      containers: resolve(__dirname, '../../src/containers'),
-      actions: resolve(__dirname, '../../src/actions'),
-      helpers: resolve(__dirname, '../../src/helpers'),
-    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 
   module: {
@@ -80,10 +77,8 @@ const config = env => ({
         loader: 'pug-loader',
       }],
     }, {
-      test: /\.js$/,
-      use: [{
-        loader: 'babel-loader',
-      }],
+      test: /\.(t|j)sx?$/,
+      use: 'babel-loader',
       exclude: /node_modules/,
     }, {
       test: /node_modules.*\.css$/,
@@ -167,6 +162,7 @@ const config = env => ({
     }),
     new webpack.HotModuleReplacementPlugin(),
     // enable HMR globally
+    new ForkTsCheckerWebpackPlugin(),
 
     new webpack.NamedModulesPlugin(),
     // prints more readable module names in the browser console on HMR updates

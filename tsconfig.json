@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "outDir": "./build/",
+        "noImplicitAny": true,
+        "module": "esnext",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "target": "es5",
+        "jsx": "react",
+        "allowJs": true
+    },
+    "exclude": [
+      "node_modules",
+      "build",
+      "scripts",
+      "acceptance-tests",
+      "webpack",
+      "jest",
+      "src/setupTests.ts"
+    ],
+}

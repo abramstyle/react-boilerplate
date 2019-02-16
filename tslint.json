@@ -1,0 +1,22 @@
+{
+  "extends": ["tslint:latest", "tslint-react"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true,
+    "jest": true
+  },
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts"
+    ]
+  },
+  "globals": {
+    "__DEV__": true,
+    "__PROD__": true,
+    "__RELEASE__": true,
+    "__STAGING__": true,
+    "__PRELOADED_STATE__": true
+  }
+}

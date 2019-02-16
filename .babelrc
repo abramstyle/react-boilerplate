@@ -1,18 +1,24 @@
 {
   "presets": [
-    "@babel/react",
-    ["@babel/env", {
+    "@babel/preset-react",
+    ["@babel/preset-env", {
       "targets": {
         "browsers": ["last 2 versions"]
       }
     }],
+    "@babel/preset-typescript",
   ],
   "plugins": [
     "react-hot-loader/babel",
     "loadable-components/babel",
-    "@babel/proposal-class-properties",
     ["react-css-modules", {
       "generateScopedName": "[name]__[local]___[hash:base64:5]"
     }],
+    ["@babel/plugin-proposal-decorators", {
+      "legacy": true
+    }],
+    ["@babel/plugin-proposal-class-properties", {
+      "loose": true
+    }]
   ]
 }

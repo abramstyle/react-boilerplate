@@ -1,5 +1,7 @@
 require('dotenv').config();
-const { resolve } = require('path');
+const {
+  resolve
+} = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
@@ -55,6 +57,16 @@ const config = env => ({
         loader: 'babel-loader',
       }],
       exclude: /node_modules/,
+    }, {
+      test: /\.tsx?$/,
+      loader: "ts-loader",
+      preLoaders: [
+        // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+        {
+          test: /\.js$/,
+          loader: "source-map-loader"
+        }
+      ]
     }, {
       test: /node_modules.*\.css$/,
       use: [{
