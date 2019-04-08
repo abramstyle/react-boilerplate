@@ -1,12 +1,12 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from "redux";
 
-import user from './user';
-import posts from './posts';
+import posts from "./posts";
+import user from "./user";
 // import comments from './comments';
 
 const reducers = combineReducers({
-  user,
   posts,
+  user,
   // comments,
 });
 

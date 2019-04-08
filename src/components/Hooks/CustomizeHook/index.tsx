@@ -10,7 +10,6 @@ function useFriendStatus() {
   }
 
   useEffect(() => {
-    console.log("isOnline: ", isOnline);
     setTimeout(() => {
       handleStatusChange({
         isOnline: true,
@@ -18,6 +17,7 @@ function useFriendStatus() {
     }, 2000);
 
     return () => {
+      console.log("unmount.");
     };
   });
 
@@ -28,7 +28,10 @@ export function FriendStatus() {
   const isOnline = useFriendStatus();
   // console.log("isOnline: ", isOnline);
 
-  return isOnline ? "Online" : "Offline";
+  const status = isOnline ? "Online" : "Offline";
+  return (
+    <div className="status">{status}</div>
+  );
 }
 
 export function FriendListItem(props: any) {

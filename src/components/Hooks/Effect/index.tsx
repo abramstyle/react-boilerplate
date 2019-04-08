@@ -16,12 +16,16 @@ function EffectHook() {
       });
     }, 2000);
 
-    return () => {};
+    return () => {
+      console.log("umnount.");
+    };
   });
 
   const statusText = isOnline ? "Online" : "Offline";
 
-  return `Friend is ${statusText}`;
+  return (
+    <div>Friend is {statusText}</div>
+  );
 }
 
 export default EffectHook;
